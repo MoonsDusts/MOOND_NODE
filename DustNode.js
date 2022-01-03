@@ -32,14 +32,11 @@ request(url, { json: true }, (err, res, body) => {
   var Buys = 0n ,Sells= 0n;
   var x=0;
 
-
   while(x < txNum){
     if(body.result[x].from == "0x122ec44c3fc85d3f1ddd72d5fe940b7d61534465"){
-     
         Buys = Buys + BigInt(parseInt(body.result[x].value));
     }
     else{
-
         Sells = Sells + BigInt(parseInt(body.result[x].value));
     }
     x++;
@@ -51,7 +48,6 @@ request(url, { json: true }, (err, res, body) => {
   console.log("Moons To Distirbute   " +totalBuyDis);
   console.log("Moons To Distirbute    " +totalSellDis);
   
-
   fs.writeFile("lastBlock.txt", body.result[0].blockNumber, function(err) {
     if(err) {
         return console.log(err);
@@ -60,19 +56,7 @@ request(url, { json: true }, (err, res, body) => {
 });       
   calcHolderStake(totalBuyDis+totalSellDis);
 });
-
 }
-
-
-
-
-
-
-
-
-
-
-
 async function calcHolderStake(totalMoons){
     var web3 = new Web3('https://bsc-dataseed.binance.org/');
     let BUSDAddress = "0x6ca5fac496bf94345958635e6e6171dfe78f36bb";
@@ -82,43 +66,13 @@ async function calcHolderStake(totalMoons){
 
     request("https://api.bscscan.com/api?module=token&action=tokenholderlist&contractaddress=0x6ca5fac496bf94345958635e6e6171dfe78f36bb&page=1&offset=10000&apikey=WVJEI4PVIBBZ9UCAHCGGF5XVEKMITDW5J7", { json: true }, (err, res, body) => {
         if (err) { return console.log(err); }
-        
         var x = 0;
         while(x < body.result.length){    //TokenHolderAddress
-        
         body.result[x].TokenHolderQuantity = (body.result[x].TokenHolderQuantity / balance * totalMoons) / 100;
-
-    
         x ++;
         } distirbute(body.result)
-      
-       
       });   
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function distirbute(HoldersArray){
     const Common = require('ethereumjs-common');
@@ -132,13 +86,8 @@ function distirbute(HoldersArray){
 
 console.log(HoldersArray[0].TokenHolderAddress);
 console.log(BigInt(HoldersArray[0].TokenHolderQuantity));
-
-    
+        
     for (let i = 0; i < HoldersArray.length; i++){
-   
- 
-        
-        
         var rawTransaction = {"from":fundsAddres,
         "chainId": web3.utils.toHex(5391184),
          "gasPrice":web3.utils.toHex(0),
@@ -147,10 +96,9 @@ console.log(BigInt(HoldersArray[0].TokenHolderQuantity));
          "value":"0x0",
          "data":myContract.methods.transfer(HoldersArray[i].TokenHolderAddress, BigInt(Math.floor(HoldersArray[i].TokenHolderQuantity))).encodeABI(),
          "nonce":web3.utils.toHex(v)} 
-
+        
          v += 1;
         
-         
          const common = Common.default.forCustomChain('mainnet', {
             name: 'eth',
             networkId: web3.utils.toHex(5391184),
@@ -162,30 +110,15 @@ console.log(BigInt(HoldersArray[0].TokenHolderQuantity));
           });
          
         var privateKey = new Buffer.from(fundsPK, 'hex') 
-    
         tx.sign(privateKey)
-        
         var serializedTx = tx.serialize();
-  
         await  web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'),await async  function(err, hash) {
-              if (!err)
-                  {
+              if (!err){
                     console.log('Txn Sent and hash is '+hash);
-                    
-                   
-                  }
-              else
-                  {
+              }else{
                     console.error(err);
-                  }
+              }
             });
-  
-          
-          
         }
-    
-    })
-      
+    }) 
 }
-
-
